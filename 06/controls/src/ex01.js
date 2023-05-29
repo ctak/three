@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: Geometry 기본
+// ----- 주제: OrbitControls
 
 export default function example() {
 	// Renderer
@@ -23,6 +23,7 @@ export default function example() {
 		0.1,
 		1000
 	);
+	camera.position.y = 1.5;
 	camera.position.z = 4;
 	scene.add(camera);
 
@@ -37,22 +38,41 @@ export default function example() {
 
 	// Controls
 	const controls = new OrbitControls(camera, renderer.domElement);
+	controls.enableDamping = true;
+	// controls.enableZoom = false;
+	// controls.maxDistance = 10;
+	// controls.minDistance = 5;
+	// controls.minPolarAngle = Math.PI / 4;
+	// controls.target.set(2, 2, 2); // 회전의 중심축
+	controls.autoRotate = true;
+	controls.autoRotateSpeed = 5;
 
 	// Mesh
-	const geometry = new THREE.BoxGeometry(1, 1, 1, 16, 16, 16);
-	const material = new THREE.MeshStandardMaterial({
-		color: 'hotpink',
-		side: THREE.DoubleSide,
-		wireframe: true,
-	});
-	const mesh = new THREE.Mesh(geometry, material);
-	scene.add(mesh);
+	const geometry = new THREE.BoxGeometry(1, 1, 1);
+	let mesh, material;
+	for (let i = 0; i < 20; i++) {
+		material = new THREE.MeshStandardMaterial({
+			color: `rgb(
+				${50 + Math.floor(Math.random() * 205)},
+				${50 + Math.floor(Math.random() * 205)},
+				${50 + Math.floor(Math.random() * 205)}
+			)`
+		});
 
+		mesh = new THREE.Mesh(geometry, material);
+		mesh.position.x = (Math.random() - 0.5) * 5;
+		mesh.position.y = (Math.random() - 0.5) * 5;
+		mesh.position.z = (Math.random() - 0.5) * 5;
+
+		scene.add(mesh);
+	}
 	// 그리기
 	const clock = new THREE.Clock();
 
 	function draw() {
 		const delta = clock.getDelta();
+
+		controls.update();
 
 		renderer.render(scene, camera);
 		renderer.setAnimationLoop(draw);

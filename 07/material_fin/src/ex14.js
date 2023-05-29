@@ -1,9 +1,22 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: Geometry 기본
+// ----- 주제: EnvironmentMap
+// https://polyhaven.com/
+// https://matheowis.github.io/HDRI-to-CubeMap/
 
 export default function example() {
+	// 텍스쳐 이미지 로드
+	const cubeTextureLoader = new THREE.CubeTextureLoader();
+	const envTex = cubeTextureLoader
+		.setPath('/textures/cubemap/')
+		.load([
+			// + - 순서
+			'px.png', 'nx.png',
+			'py.png', 'ny.png',
+			'pz.png', 'nz.png'
+		]);
+
 	// Renderer
 	const canvas = document.querySelector('#three-canvas');
 	const renderer = new THREE.WebGLRenderer({
@@ -15,6 +28,7 @@ export default function example() {
 
 	// Scene
 	const scene = new THREE.Scene();
+	// scene.background = new THREE.Color('white');
 
 	// Camera
 	const camera = new THREE.PerspectiveCamera(
@@ -23,27 +37,26 @@ export default function example() {
 		0.1,
 		1000
 	);
+	camera.position.y = 1.5;
 	camera.position.z = 4;
 	scene.add(camera);
 
 	// Light
 	const ambientLight = new THREE.AmbientLight('white', 0.5);
-	scene.add(ambientLight);
-
 	const directionalLight = new THREE.DirectionalLight('white', 1);
-	directionalLight.position.x = 1;
-	directionalLight.position.z = 2;
-	scene.add(directionalLight);
+	directionalLight.position.set(1, 1, 2);
+	scene.add(ambientLight, directionalLight);
 
 	// Controls
 	const controls = new OrbitControls(camera, renderer.domElement);
 
 	// Mesh
-	const geometry = new THREE.BoxGeometry(1, 1, 1, 16, 16, 16);
-	const material = new THREE.MeshStandardMaterial({
-		color: 'hotpink',
-		side: THREE.DoubleSide,
-		wireframe: true,
+	const geometry = new THREE.BoxGeometry(3, 3, 3);
+	const material = new THREE.MeshBasicMaterial({
+	// const material = new THREE.MeshStandardMaterial({
+		// metalness: 2,
+		// roughness: 0.1,
+		envMap: envTex
 	});
 	const mesh = new THREE.Mesh(geometry, material);
 	scene.add(mesh);

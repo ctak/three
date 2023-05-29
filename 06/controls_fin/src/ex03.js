@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { FlyControls } from 'three/examples/jsm/controls/FlyControls';
 
-// ----- 주제: Geometry 기본
+// ----- 주제: FlyControls
 
 export default function example() {
 	// Renderer
@@ -23,6 +23,7 @@ export default function example() {
 		0.1,
 		1000
 	);
+	camera.position.y = 1.5;
 	camera.position.z = 4;
 	scene.add(camera);
 
@@ -36,23 +37,39 @@ export default function example() {
 	scene.add(directionalLight);
 
 	// Controls
-	const controls = new OrbitControls(camera, renderer.domElement);
+	const controls = new FlyControls(camera, renderer.domElement);
+	controls.rollSpeed = 0.1;
+	// controls.movementSpeed = 3;
+	// controls.dragToLook = true;
+
+
 
 	// Mesh
-	const geometry = new THREE.BoxGeometry(1, 1, 1, 16, 16, 16);
-	const material = new THREE.MeshStandardMaterial({
-		color: 'hotpink',
-		side: THREE.DoubleSide,
-		wireframe: true,
-	});
-	const mesh = new THREE.Mesh(geometry, material);
-	scene.add(mesh);
+	const geometry = new THREE.BoxGeometry(1, 1, 1);
+	let mesh;
+	let material;
+	for (let i = 0; i < 20; i++) {
+		material = new THREE.MeshStandardMaterial({
+			color: `rgb(
+				${ 50 + Math.floor(Math.random() * 205) },
+				${ 50 + Math.floor(Math.random() * 205) },
+				${ 50 + Math.floor(Math.random() * 205) }
+			)`
+		});
+		mesh = new THREE.Mesh(geometry, material);
+		mesh.position.x = (Math.random() - 0.5) * 5;
+		mesh.position.y = (Math.random() - 0.5) * 5;
+		mesh.position.z = (Math.random() - 0.5) * 5;
+		scene.add(mesh);
+	}
 
 	// 그리기
 	const clock = new THREE.Clock();
 
 	function draw() {
 		const delta = clock.getDelta();
+
+		controls.update(delta);
 
 		renderer.render(scene, camera);
 		renderer.setAnimationLoop(draw);

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-// ----- 주제: Geometry 기본
+// ----- 주제: CanvasTexture
 
 export default function example() {
 	// Renderer
@@ -23,27 +23,27 @@ export default function example() {
 		0.1,
 		1000
 	);
+	camera.position.y = 1.5;
 	camera.position.z = 4;
 	scene.add(camera);
 
 	// Light
-	const ambientLight = new THREE.AmbientLight('white', 0.5);
-	scene.add(ambientLight);
-
-	const directionalLight = new THREE.DirectionalLight('white', 1);
-	directionalLight.position.x = 1;
-	directionalLight.position.z = 2;
-	scene.add(directionalLight);
+	// MeshBasicMaterial은 조명이 필요 없다
 
 	// Controls
 	const controls = new OrbitControls(camera, renderer.domElement);
 
+	// CanvasTexture
+	const texCanvas = document.createElement('canvas');
+	const texContext = texCanvas.getContext('2d');
+	texCanvas.width = 500;
+	texCanvas.height = 500;
+	const canvasTexture = new THREE.CanvasTexture(texCanvas);
+
 	// Mesh
-	const geometry = new THREE.BoxGeometry(1, 1, 1, 16, 16, 16);
-	const material = new THREE.MeshStandardMaterial({
-		color: 'hotpink',
-		side: THREE.DoubleSide,
-		wireframe: true,
+	const geometry = new THREE.BoxGeometry(1, 1, 1);
+	const material = new THREE.MeshBasicMaterial({
+		map: canvasTexture
 	});
 	const mesh = new THREE.Mesh(geometry, material);
 	scene.add(mesh);
@@ -52,7 +52,16 @@ export default function example() {
 	const clock = new THREE.Clock();
 
 	function draw() {
-		const delta = clock.getDelta();
+		const time = clock.getElapsedTime();
+
+		material.map.needsUpdate = true;
+
+		texContext.fillStyle = 'green';
+		texContext.fillRect(0, 0, 500, 500);
+		texContext.fillStyle = 'white';
+		texContext.fillRect(time * 50, 100, 50, 50);
+		texContext.font = 'bold 50px sans-serif';
+		texContext.fillText('1분코딩', 200, 200);
 
 		renderer.render(scene, camera);
 		renderer.setAnimationLoop(draw);

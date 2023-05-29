@@ -1,7 +1,7 @@
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { DragControls } from 'three/examples/jsm/controls/DragControls';
 
-// ----- 주제: Geometry 기본
+// ----- 주제: DragControls
 
 export default function example() {
 	// Renderer
@@ -23,6 +23,7 @@ export default function example() {
 		0.1,
 		1000
 	);
+	camera.position.y = 1.5;
 	camera.position.z = 4;
 	scene.add(camera);
 
@@ -35,18 +36,36 @@ export default function example() {
 	directionalLight.position.z = 2;
 	scene.add(directionalLight);
 
-	// Controls
-	const controls = new OrbitControls(camera, renderer.domElement);
 
 	// Mesh
-	const geometry = new THREE.BoxGeometry(1, 1, 1, 16, 16, 16);
-	const material = new THREE.MeshStandardMaterial({
-		color: 'hotpink',
-		side: THREE.DoubleSide,
-		wireframe: true,
+	const geometry = new THREE.BoxGeometry(1, 1, 1);
+	const meshes = [];
+	let mesh;
+	let material;
+	for (let i = 0; i < 20; i++) {
+		material = new THREE.MeshStandardMaterial({
+			color: `rgb(
+				${ 50 + Math.floor(Math.random() * 205) },
+				${ 50 + Math.floor(Math.random() * 205) },
+				${ 50 + Math.floor(Math.random() * 205) }
+			)`
+		});
+		mesh = new THREE.Mesh(geometry, material);
+		mesh.position.x = (Math.random() - 0.5) * 5;
+		mesh.position.y = (Math.random() - 0.5) * 5;
+		mesh.position.z = (Math.random() - 0.5) * 5;
+		mesh.name = `box-${i}`;
+		scene.add(mesh);
+
+		meshes.push(mesh);
+	}
+
+	// Controls
+	const controls = new DragControls(meshes, camera, renderer.domElement);
+
+	controls.addEventListener('dragstart', e => {
+		console.log(e.object.name);
 	});
-	const mesh = new THREE.Mesh(geometry, material);
-	scene.add(mesh);
 
 	// 그리기
 	const clock = new THREE.Clock();
